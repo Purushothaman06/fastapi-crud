@@ -1,13 +1,39 @@
+"""Services for items.
+
+This module contains a class (`ItemService`) which provides methods
+for creating, retrieving, filtering, aggregating, deleting, and updating
+items in the database.
+
+"""
+
 from app.database import get_database
 from app.schemas.item import ItemCreate, ItemUpdate, ItemInDB
 from app.config import settings
 from bson import ObjectId
-from datetime import datetime, date
+from datetime import datetime, timezone, date
 
 
-class ItemService:
+class ItemService(object):
+    """
+    Service class for items.
+
+    This class provides methods for creating, retrieving, filtering, aggregating, deleting, and updating items in the database.
+
+    Attributes:
+        db (motor.motor_asyncio.AsyncIOMotorDatabase): The database object.
+    """
+
     @staticmethod
     async def create_item(item: ItemCreate) -> ItemInDB:
+        """
+        Creates a new item in the database.
+
+        Args:
+            item (ItemCreate): The new item data.
+
+        Returns:
+            ItemInDB: The created item, with the generated ID.
+        """
         db = get_database()
         new_item = item.dict()
 
@@ -17,7 +43,7 @@ class ItemService:
                 new_item["expiry_date"], datetime.min.time()
             )
 
-        new_item["insert_date"] = datetime.utcnow()
+        new_item["insert_date"] = datetime.now(timezone.utc)
         result = await db[settings.ITEMS_COLLECTION].insert_one(new_item)
         created_item = await db[settings.ITEMS_COLLECTION].find_one(
             {"_id": result.inserted_id}
@@ -29,6 +55,16 @@ class ItemService:
 
     @staticmethod
     async def get_item(item_id: str) -> ItemInDB:
+        """
+        Retrieves an item from the database by its ID.
+
+        Args:
+            item_id (str): The ID of the item to retrieve.
+
+        Returns:
+            ItemInDB: The retrieved item, or None if not found.
+        """
+
         db = get_database()
         item = await db[settings.ITEMS_COLLECTION].find_one({"_id": ObjectId(item_id)})
         if item:
@@ -44,6 +80,18 @@ class ItemService:
         insert_date: str = None,
         quantity: int = None,
     ) -> list[ItemInDB]:
+        """
+        Filter items based on email, expiry date, insert date, and quantity.
+
+        Args:
+            email (str): Filter by email.
+            expiry_date (str): Filter by expiry date, in the format "YYYY-MM-DD".
+            insert_date (str): Filter by insert date, in the format "YYYY-MM-DD".
+            quantity (int): Filter by quantity.
+
+        Returns:
+            list[ItemInDB]: A list of filtered items.
+        """
         db = get_database()
         filter_query = {}
         if email:
@@ -67,9 +115,16 @@ class ItemService:
         return [ItemInDB(**{**item, "_id": str(item["_id"])}) for item in items]
 
     @staticmethod
-    async def aggregate_items() -> list[dict]:
+    async def aggregate_items() -> list[any]:
+        """
+        Aggregate items to return the count of items for each email, total quantity, average quantity, minimum and maximum expiry dates, and the count of items that are expiring soon (in the next 7 days) and expired.
+
+        Returns:
+            list[any]: A list of aggregated items
+        """
+
         db = get_database()
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         pipeline = [
             {
                 "$group": {
@@ -166,6 +221,16 @@ class ItemService:
 
     @staticmethod
     async def delete_item(item_id: str) -> bool:
+        """
+        Deletes an item from the database.
+
+        Args:
+            item_id (str): The ID of the item to delete.
+
+        Returns:
+            bool: True if the item was deleted, False otherwise.
+        """
+
         db = get_database()
         result = await db[settings.ITEMS_COLLECTION].delete_one(
             {"_id": ObjectId(item_id)}
@@ -174,6 +239,17 @@ class ItemService:
 
     @staticmethod
     async def update_item(item_id: str, item: ItemUpdate) -> ItemInDB:
+        """
+        Updates an item in the database.
+
+        Args:
+            item_id (str): The ID of the item to update.
+            item (ItemUpdate): The updated item data.
+
+        Returns:
+            ItemInDB: The updated item, or None if the item was not found.
+        """
+
         db = get_database()
         updated_item = item.dict(exclude_unset=True)
 

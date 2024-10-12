@@ -1,3 +1,11 @@
+"""
+The main application module.
+
+This module contains the main FastAPI application instance and
+its lifespan events.
+"""
+
+from typing import AsyncIterator
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from app.api import items, clock_in
@@ -6,7 +14,7 @@ from app.database import connect_to_mongo, close_mongo_connection
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """
     Lifespan of the FastAPI application.
 
