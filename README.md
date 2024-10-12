@@ -1,69 +1,175 @@
 # FastAPI CRUD Application
 
-This is a FastAPI application that performs CRUD operations for Items and User Clock-In Records.
+This repository contains a FastAPI application that performs CRUD operations for two entities: **Items** and **User Clock-In Records**. The application uses MongoDB for data storage and follows FastAPI standards for API development, including automatic Swagger documentation.
 
-## Setup
+## Table of Contents
 
-1. Clone the repository:
-   ```
-   git clone https://github.com/Purushothaman06/fastapi-crud-app.git
-   cd fastapi-crud-app
-   ```
+- [FastAPI CRUD Application](#fastapi-crud-application)
+  - [Table of Contents](#table-of-contents)
+  - [Project Setup](#project-setup)
+    - [Prerequisites](#prerequisites)
+    - [Installing Dependencies](#installing-dependencies)
+    - [Environment Variables](#environment-variables)
+  - [Endpoints](#endpoints)
+    - [Items API](#items-api)
+    - [User Clock-In Records API](#user-clock-in-records-api)
+  - [Running the Application](#running-the-application)
+  - [Deployment](#deployment)
+  - [Swagger Documentation](#swagger-documentation)
+    - [How to Access](#how-to-access)
+  - [Project Structure](#project-structure)
 
-2. Install dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
+## Project Setup
 
-3. Set up environment variables:
-   - Create a `.env` file in the project root.
-   - Add your MongoDB URI to the `.env` file:
-     ```
-     MONGODB_URI=mongodb+srv://your-username:<your-password>@your-cluster-url/your-database?retryWrites=true&w=majority
-     DEBUG=True
-     ```
+### Prerequisites
 
-## Running the Application
+- Python 3.9 or higher
+- MongoDB instance (local or MongoDB Atlas)
+- Git
 
-To run the application locally:
+### Installing Dependencies
 
+1. Clone this repository:
+
+    ```bash
+    git clone https://github.com/Purushothaman06/fastapi-crud-app.git
+    cd fastapi-crud-app
+    ```
+
+2. Create and activate a virtual environment:
+
+    ```bash
+    python3 -m venv .venv
+    source .venv/bin/activate  # On Windows, use .venv\Scripts\activate
+    ```
+
+3. Install required packages:
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4. Set up MongoDB by configuring your `MONGO_URI` and `DATABASE_NAME` in the `.env` file.
+
+### Environment Variables
+
+Create a `.env` file at the root of your project and add the following:
+
+```env
+MONGODB_URI='mongodb+srv://<db_username>:<db_password>@<cluster-url>/?retryWrites=true&w=majority&appName=<app_name>'
+DEBUG=True
+PROJECT_NAME=project_name
+PROJECT_VERSION=1.0.0
+DATABASE_NAME=database_name
+ITEMS_COLLECTION=items
+CLOCK_IN_COLLECTION=clock_in
 ```
-fastapi run
-```
 
-The application will be available at `http://localhost:8000`.
+Replace the placeholders with your MongoDB credentials.
 
-## API Endpoints
+## Endpoints
 
 ### Items API
 
-- `POST /items`: Create a new item
-- `GET /items/{id}`: Retrieve an item by ID
-- `GET /items/filter`: Filter items based on email, expiry date, insert date, and quantity
-- `GET /items/aggregate`: Aggregate data to return the count of items for each email
-- `DELETE /items/{id}`: Delete an item based on its ID
-- `PUT /items/{id}`: Update an item's details by ID
+1. **Create Item**  
+   `POST /items`  
+   - Input: Name, Email, Item Name, Quantity, Expiry Date (YYYY-MM-DD)
+   - Auto-generated field: Insert Date
 
-### Clock-In Records API
+2. **Get Item by ID**  
+   `GET /items/{id}`
 
-- `POST /clock-in`: Create a new clock-in entry
-- `GET /clock-in/{id}`: Retrieve a clock-in record by ID
-- `GET /clock-in/filter`: Filter clock-in records based on email, location, and insert datetime
-- `DELETE /clock-in/{id}`: Delete a clock-in record based on its ID
-- `PUT /clock-in/{id}`: Update a clock-in record by ID
+3. **Filter Items**  
+   `GET /items/filter`  
+   - Filters: Email (exact match), Expiry Date (after), Insert Date (after), Quantity (greater than or equal).
 
-## API Documentation
+4. **MongoDB Aggregation**  
+   `GET /items/aggregate`  
+   - Returns a count of items grouped by email.
 
-You can access the Swagger UI documentation at `http://localhost:8000/docs` when running the application locally.
+5. **Update Item by ID**  
+   `PUT /items/{id}`
+
+6. **Delete Item by ID**  
+   `DELETE /items/{id}`
+
+### User Clock-In Records API
+
+1. **Create Clock-In Record**  
+   `POST /clock-in`  
+   - Input: Email, Location
+   - Auto-generated field: Insert DateTime
+
+2. **Get Clock-In by ID**  
+   `GET /clock-in/{id}`
+
+3. **Filter Clock-Ins**  
+   `GET /clock-in/filter`  
+   - Filters: Email (exact match), Location (exact match), Insert DateTime (after).
+
+4. **Update Clock-In by ID**  
+   `PUT /clock-in/{id}`
+
+5. **Delete Clock-In by ID**  
+   `DELETE /clock-in/{id}`
+
+## Running the Application
+
+1. To start the FastAPI server locally:
+
+    ```bash
+    fastapi run
+    ```
+
+2. Access the API documentation at `http://127.0.0.1:8000/docs`.
 
 ## Deployment
 
-This application can be deployed to a free hosting service like Koyeb. Follow their documentation to deploy your FastAPI application.
+This FastAPI application has been successfully deployed on **Koyeb**, a free hosting platform. You can interact with the APIs and view detailed documentation via Swagger UI, which is auto-generated by FastAPI. The live Swagger documentation provides a user-friendly interface for testing and exploring the API endpoints.
 
-## GitHub Repository
+Access the live Swagger documentation here:  
+🔗 [Swagger Documentation](https://pure-jemie-purushothaman-474e9649.koyeb.app/docs)
 
-The source code for this project is available at: [https://github.com/Purushothaman06/fastapi-crud-app](https://github.com/Purushothaman06/fastapi-crud-app)
+The hosted application is running at:  
+🔗 [Koyeb App URL](https://pure-jemie-purushothaman-474e9649.koyeb.app)
 
-## Hosted Swagger Documentation
+## Swagger Documentation
 
-The Swagger documentation for the deployed application is available at: [https://your-app-name.koyeb.app/docs](https://your-app-name.koyeb.app/docs)
+FastAPI automatically generates an interactive API documentation interface using **Swagger UI**. Once the application is running (whether locally or in production), you can use this interface to:
+
+- View all the available API endpoints.
+- Check the required inputs and outputs for each endpoint.
+- Test the APIs by sending real-time requests directly from the documentation page.
+
+### How to Access
+
+- **Locally**: If running locally, navigate to `http://127.0.0.1:8000/docs`.
+- **Hosted Version**: Visit the hosted Swagger documentation at:  
+  [Swagger UI on Koyeb](https://pure-jemie-purushothaman-474e9649.koyeb.app/docs)
+
+This interface simplifies testing and exploring the APIs by providing built-in support for sending requests and inspecting responses directly from the browser.
+
+## Project Structure
+
+```bash
+.
+├── app
+│   ├── api
+│   │   ├── clock_in.py         # Clock-In API routes
+│   │   └── items.py            # Items API routes
+│   ├── schemas
+│   │   ├── clock_in.py         # Pydantic models for Clock-In
+│   │   └── item.py             # Pydantic models for Items
+│   ├── services
+│   │   ├── clock_in_service.py  # Business logic for Clock-In
+│   │   └── item_service.py      # Business logic for Items
+│   ├── config.py               # Configuration settings (env, database)
+│   ├── database.py             # MongoDB connection setup
+│   └── main.py                 # Main FastAPI application
+├── .env.example                # Example environment configuration
+├── .gitignore                  # Files to ignore in Git
+├── Dockerfile                  # Dockerfile for containerization
+├── pyproject.toml              # Python project metadata
+├── README.md                   # Project documentation
+└── requirements.txt            # Python dependencies
+```
